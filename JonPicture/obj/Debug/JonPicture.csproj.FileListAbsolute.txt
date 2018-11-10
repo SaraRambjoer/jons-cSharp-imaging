@@ -1,0 +1,14 @@
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\JonPicture.exe.config
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\JonPicture.exe
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\JonPicture.pdb
+C:\Users\Jon\source\repos\JonPicture\JonPicture\obj\Debug\JonPicture.csproj.CoreCompileInputs.cache
+C:\Users\Jon\source\repos\JonPicture\JonPicture\obj\Debug\JonPicture.exe
+C:\Users\Jon\source\repos\JonPicture\JonPicture\obj\Debug\JonPicture.pdb
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\DotImaging.GenericImage.dll
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\DotImaging.IO.dll
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\DotImaging.Primitives2D.dll
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\DotImaging.GenericImage.xml
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\DotImaging.IO.xml
+C:\Users\Jon\source\repos\JonPicture\JonPicture\bin\Debug\DotImaging.Primitives2D.xml
+C:\Users\Jon\source\repos\JonPicture\JonPicture\obj\Debug\JonPicture.csprojAssemblyReference.cache
+C:\Users\Jon\source\repos\JonPicture\JonPicture\obj\Debug\JonPicture.csproj.CopyComplete

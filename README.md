@@ -33,3 +33,6 @@ The dotImaging library is an open source image IO library based on openCV.
 
 Known issues/bugs:
 - coloursByDistanceOnVideo doesn't close references to modified images properly.
+
+YouTube playlist showing what can currently be done: 
+https://www.youtube.com/watch?v=MH1lzd0Cx_4&list=PLePbZRY4O0syL1Bsk08uP1g2wdjhplxSN&index=1

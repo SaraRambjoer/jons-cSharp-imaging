@@ -1,5 +1,6 @@
 # jons-cSharp-imaging
-Repository contains stuff I make for C# image and video manipulation
+Repository contains stuff I made for C# image and video manipulation. 
+Dependency: dotImaging C# library
 
 MIT License
 

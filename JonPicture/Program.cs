@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace JonPicture
 {
- 
+
     class JImage
     {
         /// <summary>
@@ -49,9 +49,9 @@ namespace JonPicture
         /// <param name="blue">Should blue be considered in distance calculation</param>
         /// <param name="red">Should be red considered in distance calculation</param>
         /// <param name="green">Should be green considered in distance calculation</param>
-        public void coloursByDistance(String imgPath, String savePath, List<int> tolList, List<List<int>> colList, bool blue=true, bool red=true, bool green=true)
+        public void coloursByDistance(String imgPath, String savePath, List<int> tolList, List<List<int>> colList, bool blue = true, bool red = true, bool green = true)
         {
-            if (tolList.Count != colList.Count- 1)
+            if (tolList.Count != colList.Count - 1)
             {
                 throw new ArgumentException("toList must be one larger than colList");
             }
@@ -60,12 +60,12 @@ namespace JonPicture
             int height = bitmap.Height;
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb); //Unlikely to work well with other pixel formats
             data.Stride = data.Width;
-            int pixelWidth = Image.GetPixelFormatSize(bitmap.PixelFormat)/8;
+            int pixelWidth = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
             unsafe
             {//Goes through all pixels in a horizontal line for each horizontal line and finding out what group it should be placed in based on distance from right pixel. 
                 byte* ptr = (byte*)data.Scan0;
                 byte* ptr2;
-                for (int y = 0; y < height-1; y++)
+                for (int y = 0; y < height - 1; y++)
                 {
                     for (int x = 0; x < width; x++)
                     {
@@ -103,12 +103,104 @@ namespace JonPicture
             bn.Dispose();
         }
         /// <summary>
+        /// Set the colour in colourFrom to the colour in colourTo.
+        /// </summary>
+        /// <param name="imgPath">Image path</param>
+        /// <param name="savePath">Save path</param>
+        /// <param name="colourFrom">Original colour as a list with 3 elements, going Red Green Blue</param>
+        /// <param name="colourTo">Colour to change original colour to, same format as colourFrom.</param>
+        public void mapColour(String imgPath, String savePath, List<int> colourFrom, List<int> colourTo)
+        {
+            Bitmap bitmap = new Bitmap(imgPath);
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb); 
+            data.Stride = data.Width;
+            int pixelWidth = 4;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                byte* ptr2;
+                for (int y = 0; y < height - 1; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        ptr2 = ptr;
+                        int b1 = *(ptr2++);
+                        int g1 = *(ptr2++);
+                        int r1 = *(ptr2++);
+                        if ((int)r1 == colourFrom[0] && (int)g1 == colourFrom[1] && (int)b1 == colourFrom[2])
+                        {
+                            ptr2--;
+                            *(ptr2--) = (byte)colourTo[0];
+                            *(ptr2--) = (byte)colourTo[1];
+                            *(ptr2--) = (byte)colourTo[2];
+                        }
+                        ptr += pixelWidth;
+                    }
+                }
+            }
+            bitmap.UnlockBits(data);
+            Bitmap bn = new Bitmap(bitmap);
+            bitmap.Dispose();
+            bn.Save(savePath, ImageFormat.Png);
+            bn.Dispose();
+        }
+        /// <summary>
+        /// Maps random amount w/chosen percentage of chosen colours to another colour.
+        /// </summary>
+        /// <param name="imgPath">Path of original image.</param>
+        /// <param name="savePath">Path to save new image to</param>
+        /// <param name="colourTo">Colour to change colours to</param>
+        /// <param name="percentage">Percentage of colours to be changed. Format: alpha, red, green, blue</param>
+        /// <param name="colour">List of colours to change from. Format alpha, red, green, blue</param>
+        public void randomColour(String imgPath, String savePath, List<int> colourTo, float percentage, List<List<int>> colourFrom)
+        {
+            Bitmap bitmap = new Bitmap(imgPath);
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb); //Unlikely to work well with other pixel formats
+            data.Stride = data.Width;
+            int pixelWidth = 4;
+            Random rand = new Random();
+            unsafe
+            {//Goes through all pixels in a horizontal line for each horizontal line and finding out what group it should be placed in based on distance from right pixel. 
+                byte* ptr = (byte*)data.Scan0;
+                byte* ptr2;
+                for (int y = 0; y < height - 1; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        ptr2 = ptr;
+                        int b1 = *(ptr2++);
+                        int g1 = *(ptr2++);
+                        int r1 = *(ptr2++);
+                        int a1 = *(ptr2++);
+                        if (rand.Next(0, 100) / 100.0f <= percentage && (colourFrom.IndexOf(new List<int>() { a1, r1, g1, b1 }) != -1))
+                        {
+                            ptr2 -= 1;
+                            *(ptr2--) = (byte)colourTo[0];
+                            *(ptr2--) = (byte)colourTo[1];
+                            *(ptr2--) = (byte)colourTo[2];
+                            *(ptr2--) = (byte)colourTo[3];
+                        }
+                        ptr += pixelWidth;
+                    }
+                }
+            }
+            bitmap.UnlockBits(data);
+            Bitmap bn = new Bitmap(bitmap);
+            bitmap.Dispose();
+            bn.Save(savePath, ImageFormat.Png);
+            bn.Dispose();
+        }
+        /// <summary>
         /// Calls coloursByDistance for each pair of strings in imgPaths and savePaths.
         /// </summary>
         /// <param name="imgPaths">A list of string paths to images. </param>
         /// <param name="savePaths">A list of strings signifiying where the modified images are to be saved. </param>
         /// <see cref="coloursByDistance(string, string, List{int}, List{List{int}}, bool, bool, bool)"></see>
-        public void coloursByDistanceWrapper(List<String> imgPaths,List<String> savePaths, List<int> tolList, List<List<int>> colList, bool blue = true, bool red = true, bool green = true)
+        public void coloursByDistanceWrapper(List<String> imgPaths, List<String> savePaths, List<int> tolList, List<List<int>> colList, bool blue = true, bool red = true, bool green = true)
         {
             if (imgPaths.Count != savePaths.Count)
             {
@@ -144,9 +236,9 @@ namespace JonPicture
             ImageStreamWriter videoWriter = new VideoWriter(videoPath, new DotImaging.Primitives2D.Size(width, height));
             foreach (String frame in imagePaths)
             {
-               IImage image = ImageIO.LoadUnchanged(frame);
-               videoWriter.Write(image);
-               image.Dispose();
+                IImage image = ImageIO.LoadUnchanged(frame);
+                videoWriter.Write(image);
+                image.Dispose();
             }
             videoWriter.Close();
         }
@@ -174,7 +266,7 @@ namespace JonPicture
         /// <param name="destroyExtractedFrames">bool deciding if extracted images should be deleted. </param>
         /// <param name="destroyModifiedFrames">bool deciding if modified images should be deleted. </param>
         static void coloursByDistanceOnVideo(String sourceVideo, String newVideoName, String extractedFramePath, String modifiedFramePath, List<int> tolList, List<List<int>> colList, bool blue = true, bool red = true, bool green = true, bool destroyExtractedFrames = true, bool destroyModifiedFrames = true)
-        { 
+        {
             JImage im = new JImage();
             List<String> filePaths = new List<String>(Directory.GetFiles(extractedFramePath, "*.png", SearchOption.TopDirectoryOnly));
             //Ensures the folders for storing extracted frames and modified frames don't have other png files in them. 
@@ -231,34 +323,81 @@ namespace JonPicture
 
             im.imagesToVideo(savePaths, newVideoName);
         }
-        /*
-         * Below is some example code:
+        /// <summary>
+        /// Makes similar colours identical upto maxSensitivity RGB sensitivity starting from the increment value and incrementing with the increment value, going left to right
+        /// horizontal first then up-down vertical
+        /// </summary>
+        /// <param name="imgPath">Source image path</param>
+        /// <param name="savePath">Save location path</param>
+        /// <param name="increment">Start value and increment</param>
+        /// <param name="maxSensitivity">The max similiarity.</param>
+        public static void colourGrouper(String imgPath, String savePath, int increment, int maxSensitivity)
+        {
+            Bitmap bitmap = new Bitmap(imgPath);
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat); 
+            data.Stride = data.Width;
+            Console.WriteLine(bitmap.PixelFormat);
+            int pixelWidth = 3; //Works for 3byte per image images. 
+            int sensitivity = 5;
+            unsafe
+            {
+                while (sensitivity < maxSensitivity)
+                {
+                    byte* ptr = (byte*)data.Scan0;
+                    byte* ptr3 = ptr;
+                    for (int y = 0; y < height - 1; y += 1)
+                    {
+                        for (int x = 0; x < width - 1; x += 1)
+                        {
+                            byte* ptr4 = ptr3;
+                            byte* ptr5 = ptr3 + pixelWidth;
+                            if (Math.Abs(*ptr4++ - *ptr5++) + Math.Abs(*ptr4++ - *ptr5++) + Math.Abs(*ptr4++ - *ptr5++) < sensitivity)
+                            {
+                                ptr4 = ptr3;
+                                ptr5 = ptr3 + pixelWidth;
+                                *ptr5++ = *ptr4;
+                                *ptr5++ = *ptr4;
+                                *ptr5++ = *ptr4;
+                            }
+                            ptr3 += pixelWidth;
+                        }
+                        ptr += width * pixelWidth;
+                        ptr3 = ptr;
+                    }
+                    ptr = (byte*)data.Scan0;
+                    ptr3 = ptr;
+                    for (int y = 0; y < width; y += 1)
+                    {
+                        for (int x = 0; x < height - 2; x += 1)
+                        {
+                            byte* ptr4 = ptr3;
+                            byte* ptr5 = ptr3 + data.Stride;
+                            if (Math.Abs(*ptr4++ - *ptr5++) + Math.Abs(*ptr4++ - *ptr5++) + Math.Abs(*ptr4++ - *ptr5++) < sensitivity)
+                            {
+                                ptr4 = ptr3;
+                                ptr5 = ptr3 + data.Stride;
+                                *ptr5++ = *ptr4;
+                                *ptr5++ = *ptr4;
+                                *ptr5++ = *ptr4;
+                            }
+                            ptr3 += width * pixelWidth;
+                        }
+                        ptr += pixelWidth;
+                        ptr3 = ptr;
+                    }
+                    sensitivity += increment;
+                }
+            }
+            bitmap.UnlockBits(data);
+            Bitmap bn = new Bitmap(bitmap);
+            bitmap.Dispose();
+            bn.Save(savePath, ImageFormat.Png);
+            bn.Dispose();
+        }
         public static void Main(string[] args)
         {
-            List<int> list1 = new List<int>();
-            list1.Add(15);
-            List<int> list2 = new List<int>();
-            List<List<int>> list3 = new List<List<int>>();
-            list2.Add(0);
-            list2.Add(0);
-            list2.Add(0);
-            list3.Add(list2);
-            list2 = new List<int>();
-            list2.Add(255);
-            list2.Add(255);
-            list2.Add(255);
-            list3.Add(list2);
-            list2 = new List<int>();
-            //JImage.coloursByDistanceOnVideo("D:\\Pictures\\cyb\\walk.mp4", "D:\\Pictures\\cyb\\walk1.avi", "D:\\Pictures\\cyb\\extracted\\", "D:\\Pictures\\cyb\\processed\\", list1, list3);
-            list2 = new List<int>() { 255, 238, 2 };
-            List<int> list4 = new List<int>() { 255, 2, 40 };
-            List<int> list5 = new List<int>() { 2, 69, 255 };
-            List<int> list6 = new List<int>() { 0, 0, 0 };
-            List<int> list7 = new List<int>() { 255, 255, 255 };
-            list3 = new List<List<int>>() { list6, list2, list4, list5, list7 };
-            list1 = new List<int>() { 3, 7, 15, 30 };
-            JImage.coloursByDistanceOnVideo("D:\\Pictures\\cyb\\walk.mp4", "D:\\Pictures\\cyb\\walk3.avi", "D:\\Pictures\\cyb\\extracted\\", "D:\\Pictures\\cyb\\processed\\", list1, list3);
         }
-        */
     }
 }

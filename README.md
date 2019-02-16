@@ -28,12 +28,12 @@ Currently these functions are supported:
 - Changing a pixel colour depening on how different it is to the pixel to the right of it (tested for PNG and JPEG)
 - Making a video into images using the dotImaging library
 - Making a set of images into an .avi video using the dotImaging library
+- Changing each pixel of one colour (ignoring alpha) into a pixel of another colour
+- Randomly changing a percentage of pixels of one colour into a pixel of another colour
+- Going left to right and up to down over an image setting the next pixel equal to the current if their colours are sufficiently similar. Loops over several times to incrementally make the most similar equal first. 
 
 The dotImaging library is an open source image IO library based on openCV. 
 - https://github.com/dajuric/dot-imaging
 
-Known issues/bugs:
-- coloursByDistanceOnVideo doesn't close references to modified images properly.
-
-YouTube playlist showing what can currently be done: 
+YouTube playlist showing some features: 
 https://www.youtube.com/watch?v=MH1lzd0Cx_4&list=PLePbZRY4O0syL1Bsk08uP1g2wdjhplxSN&index=1
